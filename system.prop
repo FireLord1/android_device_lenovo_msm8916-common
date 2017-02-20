@@ -129,3 +129,13 @@ ro.sf.lcd_density=480
 # WiFi
 ro.disableWifiApFirmwareReload=true
 wifi.interface=wlan0
+
+#Better Ram Managament
+ro.HOME_APP_ADJ=1
+
+#Better Net speeds
+net.tcp.buffersize.default=4096,87380,256960, 4096, 16384,256960
+net.tcp.buffersize.wifi=4096,87380,256960,409 6,163 84,256960
+net.tcp.buffersize.umts=4096,8 7380,256960,4096,163 84,256960
+net.tcp.buffersize.gprs=4096,8 7380,256960,4096,163 84,256960
+net.tcp.buffersize.edge=4096,8 7380,256960,4096,163 84,256960

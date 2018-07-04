@@ -88,7 +88,7 @@ PRODUCT_PACKAGES += \
     libc_util \
     camera.msm8916 \
     android.hardware.camera.provider@2.4-impl \
-    camera.device@1.0-impl \
+    camera.device@1.0-impl
 
 # Display
 PRODUCT_PACKAGES += \
@@ -124,7 +124,7 @@ PRODUCT_PACKAGES += \
 
 # GPS
 PRODUCT_PACKAGES += \
-    gps.msm8916 \
+    gps.msm8916
 
 PRODUCT_PACKAGES += \
     flp.conf \
@@ -234,7 +234,7 @@ PRODUCT_COPY_FILES += \
 
 # QMI
 PRODUCT_PACKAGES += \
-    libjson \
+    libjson
 
 # RIL
 PRODUCT_PACKAGES += \
@@ -242,9 +242,6 @@ PRODUCT_PACKAGES += \
     libcnefeatureconfig \
     librmnetctl \
     libxml2
-
-PRODUCT_BOOT_JARS += \
-    telephony-ext
 
 # USB HAL
 PRODUCT_PACKAGES += \

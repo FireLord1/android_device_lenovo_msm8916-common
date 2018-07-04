@@ -139,6 +139,17 @@ PRODUCT_PACKAGES += \
     android.hidl.manager@1.0 \
     android.hidl.manager@1.0-java
 
+# Camera-face detection
+PRODUCT_PACKAGES += \
+    org.codeaurora.camera \
+    org.codeaurora.camera.xml
+
+PRODUCT_BOOT_JARS += \
+    org.codeaurora.camera
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.camera.facedetect=1
+
 # Healthd
 PRODUCT_PACKAGES += \
     android.hardware.health@1.0-impl \

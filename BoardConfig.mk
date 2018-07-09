@@ -59,8 +59,17 @@ BACKLIGHT_PATH := "/sys/class/leds/button-backlight/brightness"
 
 # Lineagehw
 BOARD_HARDWARE_CLASS += \
-    hardware/lineage/lineagehw \
     device/lenovo/passion/lineagehw
+
+# Dexpreopt
+ifeq ($(HOST_OS),linux)
+  ifneq ($(TARGET_BUILD_VARIANT),eng)
+    ifeq ($(WITH_DEXPREOPT),)
+      WITH_DEXPREOPT := true
+      WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := true
+    endif
+  endif
+endif
 
 # FM
 AUDIO_FEATURE_ENABLED_FM_POWER_OPT := true

@@ -9,7 +9,7 @@ persist.audio.fluence.voicerec=false
 persist.audio.fluence.speaker=true
 audio.offload.buffer.size.kb=64
 audio.offload.min.duration.secs=30
-audio.offload.video=true
+audio.offload.video=false
 use.voice.path.for.pcm.voip=true
 audio.offload.gapless.enabled=true
 

@@ -7,11 +7,11 @@ ro.qc.sdk.audio.fluencetype=fluence
 persist.audio.fluence.voicecall=true
 persist.audio.fluence.voicerec=false
 persist.audio.fluence.speaker=true
-audio.offload.buffer.size.kb=64
+vendor.audio.offload.buffer.size.kb=64
 audio.offload.min.duration.secs=30
 audio.offload.video=false
-use.voice.path.for.pcm.voip=true
-audio.offload.gapless.enabled=true
+vendor.voice.path.for.pcm.voip=true
+vendor.audio.offload.gapless.enabled=true
 
 # Bluetooh
 bluetooth.hfp.client=1
@@ -30,11 +30,9 @@ ro.qualcomm.bluetooth.pbap=true
 
 # Camera
 camera2.portability.force_api=1
-persist.camera.cpp.duplication=false
-persist.camera.hal.debug.mask=0
-persist.camera.pip.support=0
 media.stagefright.legacyencoder=true
 media.stagefright.less-secure=true
+camera.disable_treble=true
 vidc.enc.narrow.searchrange=1
 
 # Display
@@ -113,9 +111,15 @@ persist.radio.ecc_hard_count=1
 persist.radio.sib16_support=1
 persist.radio.aosp_usr_pref_sel=true
 
+# Velocity
+ro.min.fling_velocity=160
+ro.max.fling_velocity=20000
+
+# Usb tethering
+persist.sys.usb.config.extra=none
+
 # Screen density
 ro.sf.lcd_density=480
 
 # WiFi
-ro.disableWifiApFirmwareReload=true
 wifi.interface=wlan0

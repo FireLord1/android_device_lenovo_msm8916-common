@@ -124,61 +124,15 @@ on boot
 
     setprop wifi.interface wlan0
 
-#   Define TCP buffer sizes for various networks
-#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
-    setprop net.tcp.buffersize.wifi    524288,2097152,4194304,262144,524288,1048576
-
-
-    setprop ro.telephony.call_ring.multiple false
-
-    #Remove SUID bit for iproute2 ip tool
-    chmod 0755 /system/bin/ip
-
-
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
     #For bridgemgr daemon to inform the USB driver of the correct transport
     chown radio radio /sys/class/android_usb/f_rmnet_smd_sdio/transport
 
-#   Define TCP buffer sizes for various networks
-#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
-    setprop net.tcp.buffersize.default 4096,87380,524288,4096,16384,110208
-    setprop net.tcp.buffersize.lte     2097152,4194304,8388608,262144,524288,1048576
-    setprop net.tcp.buffersize.umts    4094,87380,110208,4096,16384,110208
-    setprop net.tcp.buffersize.hspa    4094,87380,1220608,4096,16384,1220608
-    setprop net.tcp.buffersize.hsupa   4094,87380,1220608,4096,16384,1220608
-    setprop net.tcp.buffersize.hsdpa   4094,87380,1220608,4096,16384,1220608
-    setprop net.tcp.buffersize.hspap   4094,87380,1220608,4096,16384,1220608
-    setprop net.tcp.buffersize.edge    4093,26280,35040,4096,16384,35040
-    setprop net.tcp.buffersize.gprs    4092,8760,11680,4096,8760,11680
-    setprop net.tcp.buffersize.evdo    4094,87380,524288,4096,16384,262144
-
 #   Assign TCP buffer thresholds to be ceiling value of technology maximums
 #   Increased technology maximums should be reflected here.
     write /proc/sys/net/core/rmem_max  8388608
     write /proc/sys/net/core/wmem_max  8388608
-
-    #To allow interfaces to get v6 address when tethering is enabled
-    write /proc/sys/net/ipv6/conf/rmnet0/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet1/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet2/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet3/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet4/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet5/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet6/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet7/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio0/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio1/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio2/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio3/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio4/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio5/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio6/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_sdio7/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb0/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb1/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb2/accept_ra 2
-    write /proc/sys/net/ipv6/conf/rmnet_usb3/accept_ra 2
 
     # To prevent out of order acknowledgements from making
     # connection tracking to treat them as not belonging to
@@ -289,7 +243,7 @@ on property:sys.listeners.registered=true
 
 #lenovo-sw weiweij added for fast_charger_sw fast charger switch dameon
 service fast_charger_sw /system/bin/fast_charger_sw
-    class  main
+    class main
     user root
     seclabel u:r:fast_charger_sw:s0
 #lenovo-sw weiweij added for fast_charger_sw fast charger switch dameon end
@@ -307,6 +261,9 @@ on post-fs
     chown system system /sys/class/power_supply/ext-charger/otg_usb_short
     chmod 0664 /sys/class/power_supply/ext-charger/fast_charger_is_engineermode
     chmod 0666 /sys/class/power_supply/ext-charger/otg_usb_short
+
+    # default country code
+    setprop ro.boot.wificountrycode 00
 
 # msm specific files that need to be created on /data
 on post-fs-data
@@ -469,27 +426,6 @@ on property:bluetooth.isEnabled=true
     start btwlancoex
     write /sys/class/bluetooth/hci0/idle_timeout 7000
 
-on property:bluetooth.sap.status=running
-    start bt-sap
-
-on property:bluetooth.sap.status=stopped
-    stop bt-sap
-
-on property:bluetooth.dun.status=running
-    start bt-dun
-
-on property:bluetooth.dun.status=stopped
-    stop bt-dun
-
-on property:ro.bluetooth.ftm_enabled=true
-    start ftmd
-
-on property:bluetooth.startbtsnoop=true
-    start btsnoop
-
-on property:bluetooth.startbtsnoop=false
-    stop btsnoop
-
 service qcom-c_main-sh /system/bin/sh /init.class_main.sh
     class main
     user root
@@ -512,12 +448,6 @@ service rmt_storage /system/bin/rmt_storage
     user root
     shutdown critical
     ioprio rt 0
-
-on property:wc_transport.start_hci=true
-    start start_hci_filter
-
-on property:wc_transport.start_hci=false
-    stop start_hci_filter
 
 service config_bt_addr /system/bin/btnvtool -O
     class core
@@ -542,24 +472,17 @@ on property:hw.fm.init=0
 on property:hw.fm.init=1
      write /sys/module/radio_iris_transport/parameters/fmsmd_set 1
 
-service btsnoop /system/bin/btsnoop
-   user bluetooth
-   group bluetooth net_bt_admin sdcard_rw sdcard_r media_rw
-   class late_start
-   disabled
-   oneshot
-
 service qseecomd /system/bin/qseecomd
    class core
    user root
    group root
 
-service perfd /system/vendor/bin/perfd
+service perfd /vendor/bin/perfd
    class main
    user root
    disabled
 
-service thermal-engine /system/vendor/bin/thermal-engine
+service thermal-engine /vendor/bin/thermal-engine
    class main
    user root
    socket thermal-send-client stream 0666 system system
@@ -571,17 +494,6 @@ service time_daemon /system/bin/time_daemon
    class late_start
    user root
    group root
-
-service audiod /system/bin/audiod
-   class late_start
-   user system
-   group system
-
-service vm_bms /system/bin/vm_bms
-    user root
-    group root
-    group root wakelock
-    disabled
 
 service wcnss-service /system/bin/wcnss_service
     class main
@@ -599,12 +511,6 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
     user camera
     group camera system inet input graphics
-
-service port-bridge /system/bin/port-bridge /dev/mhi_pipe_32 /dev/ttyGS0
-    class main
-    user radio system
-    group radio system inet
-    disabled
 
 # QMUX must be in multiple groups to support external process connections
 service qmuxd /system/bin/qmuxd
@@ -644,10 +550,6 @@ service loc_launcher /system/bin/loc_launcher
     class late_start
     group gps inet net_raw diag net_admin wifi
 
-on property:crypto.driver.load=1
-     insmod /system/lib/modules/qce.ko
-     insmod /system/lib/modules/qcedev.ko
-
 on property:ro.data.large_tcp_window_size=true
     # Adjust socket buffer to enlarge TCP receive window for high bandwidth (e.g. DO-RevB)
     write /proc/sys/net/ipv4/tcp_adv_win_scale  2
@@ -667,14 +569,6 @@ service msm_irqbalance /system/bin/msm_irqbalance -f /system/vendor/etc/msm_irqb
     class core
     user root
     group root
-    disabled
-
-# bugreport is triggered by developer options
-service bugreport /system/bin/dumpstate -d -p -B \
-        -o /data/data/com.android.shell/files/bugreports/bugreport
-    class main
-    disabled
-    oneshot
 
 on charger
     trigger fs

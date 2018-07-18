@@ -291,12 +291,8 @@ PRODUCT_PACKAGES += \
     libwpa_client \
     wcnss_service \
     wificond \
-    wifilogd \
     hostapd \
-    libwifi-hal-qcom \
     libcld80211 \
-    libqsap_sdk \
-    libQWiFiSoftApCfg \
     wpa_supplicant \
     wpa_supplicant.conf
 

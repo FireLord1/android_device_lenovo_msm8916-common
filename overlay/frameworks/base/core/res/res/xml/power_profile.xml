@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <device name="Android">
+    <item name="none">0</item>
     <item name="screen.on">142.74</item>
     <item name="screen.full">190.35</item>
     <item name="bluetooth.active">143.09</item>
@@ -37,4 +38,11 @@
     </array>
     <item name="cpu.idle">1.6</item>
     <item name="battery.capacity">4900</item>
+    <array name="wifi.batchedscan">
+        <value>.0002</value>
+        <value>.002</value>
+        <value>.02</value>
+        <value>.2</value>
+        <value>2</value>
+    </array>
 </device>

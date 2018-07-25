@@ -40,7 +40,7 @@ BOARD_ANT_WIRELESS_DEVICE := "vfs-prerelease"
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_QCOM := true
-BLUETOOTH_HCI_USE_MCT := true
+QCOM_BT_READ_ADDR_FROM_PROP := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/lenovo/passion/bluetooth
 
 # Board

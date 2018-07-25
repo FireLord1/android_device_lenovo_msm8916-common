@@ -31,8 +31,6 @@ ro.qualcomm.bluetooth.pbap=true
 # Camera
 camera2.portability.force_api=1
 persist.camera.cpp.duplication=false
-persist.camera.hal.debug.mask=0
-persist.camera.pip.support=0
 media.stagefright.legacyencoder=true
 media.stagefright.less-secure=true
 vidc.enc.narrow.searchrange=1
@@ -98,6 +96,7 @@ ro.vendor.extension_library=libqti-perfd-client.so
 persist.timed.enable=true
 com.qc.hardware=true
 debug.qc.hardware=true
+debug.hwui.use_buffer_age=false
 
 # Radio
 rild.libpath=/vendor/lib64/libril-qc-qmi-1.so
@@ -112,6 +111,13 @@ persist.radio.ecc_hard_1=998
 persist.radio.ecc_hard_count=1
 persist.radio.sib16_support=1
 persist.radio.aosp_usr_pref_sel=true
+
+# Velocity
+ro.min.fling_velocity=160
+ro.max.fling_velocity=20000
+
+# Usb tethering
+persist.sys.usb.config.extra=none
 
 # Screen density
 ro.sf.lcd_density=480

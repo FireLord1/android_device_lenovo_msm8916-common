@@ -58,7 +58,6 @@ TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
 # Charger
 BOARD_CHARGER_DISABLE_INIT_BLANK := true
 BOARD_CHARGER_ENABLE_SUSPEND := true
-BACKLIGHT_PATH := "/sys/class/leds/button-backlight/brightness"
 
 # Lineagehw
 BOARD_HARDWARE_CLASS += \

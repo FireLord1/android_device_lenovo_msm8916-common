@@ -575,3 +575,4 @@ on charger
     mount ext4 /dev/block/bootdevice/by-name/system /system ro barrier=1
     start fast_charger_sw
     load_system_props
+    setprop sys.usb.configfs 0

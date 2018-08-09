@@ -4,7 +4,7 @@
     "target_path": "device/qcom/common"
   },
   {
-    "repository": "android_kernel_lenovo_p1a42",
-    "target_path": "kernel/lenovo/p1a42"
+    "repository": "android_kernel_lenovo_passion",
+    "target_path": "kernel/lenovo/passion"
   }
 ]

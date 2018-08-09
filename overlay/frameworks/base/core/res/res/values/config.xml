@@ -291,7 +291,7 @@
 
     <!-- Boolean indicating whether the HWC setColorTransform function can be performed efficiently
          in hardware. -->
-    <bool name="config_setColorTransformAccelerated">true</bool>
+    <bool name="config_setColorTransformAccelerated">false</bool>
 
     <!-- enabling WifiDisplay(Miracast Source)-->
     <bool name="config_enableWifiDisplay">true</bool>
@@ -306,7 +306,6 @@
     NOTE ! - Enable for devices that have a fast response proximity sensor (ideally < 300ms)-->
     <bool name="config_proximityCheckOnWake">true</bool>
     <bool name="config_proximityCheckOnWakeEnabledByDefault">true</bool>
-    <bool name="config_proximityCheckOnFingerprintWake">true</bool>
     <integer name="config_proximityCheckTimeout">100</integer>
  
     <!-- ComponentName of a dream to show whenever the system would otherwise have

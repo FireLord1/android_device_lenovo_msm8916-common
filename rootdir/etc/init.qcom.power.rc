@@ -25,22 +25,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-on boot
-    # Switch to interactive and let PowerHAL configure it
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "interactive"
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
-    chmod 0644 /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
-    chmod 0644 /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
-    chmod 0644 /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
-    chmod 0644 /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
-
-on property:sys.boot_completed=1
-    # Disable thermal core_control to update interactive gov settings
-    write /sys/module/msm_thermal/core_control/enabled 0
-
+on enable-low-power
     # Enable governor for perf cluster
     write /sys/devices/system/cpu/cpu0/online 1
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "interactive"
@@ -51,6 +36,7 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy 0
     write /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads "1 960000:85 1113600:90 1344000:80"
     write /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time 50000
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/sampling_down_factor 50000
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 960000
 
     # Enable governor for power cluster
@@ -63,19 +49,72 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy 0
     write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads "1 800000:90"
     write /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time 40000
+    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/sampling_down_factor 40000
     write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 800000
 
-    # Enable thermal core_control now
-    write /sys/module/msm_thermal/core_control/enabled 1
-    
+    # HMP scheduler settings
+    write /proc/sys/kernel/sched_ravg_hist_size 5
+    write /proc/sys/kernel/sched_small_task 20
+    write /proc/sys/kernel/sched_upmigrate 75
+    write /proc/sys/kernel/sched_downmigrate 60
+    write /proc/sys/kernel/sched_mostly_idle_load 30
+    write /proc/sys/kernel/sched_mostly_idle_nr_run 3
+    write /proc/sys/kernel/sched_window_stats_policy 3
+    write /sys/devices/system/cpu/cpu0/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu1/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu2/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu3/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu4/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu5/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu6/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu7/sched_mostly_idle_load 30
+    write /sys/devices/system/cpu/cpu0/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu1/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu2/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu3/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu4/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu5/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu6/sched_mostly_idle_nr_run 3
+    write /sys/devices/system/cpu/cpu7/sched_mostly_idle_nr_run 3
+
     # Bring up all cores online
     write /sys/devices/system/cpu/cpu1/online 1
     write /sys/devices/system/cpu/cpu2/online 1
     write /sys/devices/system/cpu/cpu3/online 1
-    write /sys/devices/system/cpu/cpu4/online 1
     write /sys/devices/system/cpu/cpu5/online 1
     write /sys/devices/system/cpu/cpu6/online 1
     write /sys/devices/system/cpu/cpu7/online 1
-    
-    # Enable low power modes
-    write /sys/module/lpm_levels/parameters/sleep_disabled 0
+
+    # Devfreg qcom cpu
+    write /sys/class/devfreq/qcom,cpubw.64/governor "bw_hwmon"
+    write /sys/class/devfreq/qcom,cpubw.64/bw_hwmon/io_percent 20
+    write /sys/class/devfreq/qcom,gpubw.61/governor "bw_hwmon"
+    write /sys/class/devfreq/qcom,gpubw.61/bw_hwmon/io_percent 40
+    write /sys/class/devfreq/qcom,mincpubw.65/governor "cpufreq"
+
+    # Leds blink
+    write /sys/class/leds/rgbled/trigger "timer"
+    write /sys/class/leds/rgbled/delay_on 306483492
+    write /sys/class/leds/rgbled/delay_off 328965
+
+    # Enable adaptive lmk
+    write /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk 1
+    write /sys/module/lowmemorykiller/parameters/vmpressure_file_min 81250
+
+    # Alarm
+    write /sys/module/qpnp_rtc/parameters/poweron_alarm 1
+
+    # Disable dload mode
+    write /sys/module/msm_poweroff/parameters/download_mode 0
+
+    # Disable thermal core_control to update interactive gov settings
+    write /sys/module/msm_thermal/core_control/enabled 0
+
+    # RPS mask
+    write /sys/class/net/rmnet0/queues/rx-0/rps_cpus 10
+
+on property:sys.boot_completed=1
+    trigger enable-low-power
+
+on property:init.svc.recovery=running
+    trigger enable-low-power

@@ -33,6 +33,9 @@ on early-init
     mkdir /system 0777 root root
     symlink /data/tombstones /tombstones
     mount debugfs debugfs /sys/kernel/debug
+    chmod 0755 /sys/kernel/debug
+    chown root system /dev/kmsg
+    chmod 0620 /dev/kmsg
 
 on init
     # Set permissions for persist partition
@@ -65,13 +68,13 @@ on fs
 on early-boot
     # set RLIMIT_MEMLOCK to 64MB
     setrlimit 8 67108864 67108864
-    # Allow subsystem (modem etc) debugging
-    write /sys/module/subsystem_restart/parameters/enable_debug ${persist.sys.ssr.enable_debug}
-    write /sys/module/pil_msa/parameters/pbl_mba_boot_timeout_ms ${persist.sys.mba_boot_timeout}
-    write /sys/module/pil_msa/parameters/modem_auth_timeout_ms ${persist.sys.modem_auth_timeout}
-    write /sys/module/peripheral_loader/parameters/proxy_timeout_ms ${persist.sys.pil_proxy_timeout}
     write /sys/kernel/boot_adsp/boot 1
     chown root audio /sys/kernel/boot_adsp/boot
+
+    # SSR setup
+    write /sys/bus/msm_subsys/devices/subsys0/restart_level "related"
+    write /sys/bus/msm_subsys/devices/subsys1/restart_level "related"
+    write /sys/bus/msm_subsys/devices/subsys2/restart_level "related"
 
 on boot
     chown bluetooth bluetooth /sys/module/bluetooth_power/parameters/power
@@ -102,17 +105,15 @@ on boot
     chmod 0660 /sys/class/rfkill/rfkill0/device/extldo
 
     #Create QMUX deamon socket area
-    mkdir /dev/socket/qmux_radio 0770 radio radio
-    chmod 2770 /dev/socket/qmux_radio
-    mkdir /dev/socket/qmux_audio 0770 media audio
-    chmod 2770 /dev/socket/qmux_audio
-    mkdir /dev/socket/qmux_bluetooth 0770 bluetooth bluetooth
-    chmod 2770 /dev/socket/qmux_bluetooth
-    mkdir /dev/socket/qmux_gps 0770 gps gps
-    chmod 2770 /dev/socket/qmux_gps
+    mkdir /dev/socket/qmux_radio 2770 radio radio
+    mkdir /dev/socket/qmux_audio 2770 media audio    
+    mkdir /dev/socket/qmux_bluetooth 2770 bluetooth bluetooth
+    mkdir /dev/socket/qmux_gps 2770 gps gps
 
     mkdir /persist/drm 0770 system system
     mkdir /persist/misc 0770 system system
+    mkdir /persist/alarm 0770 system system
+    mkdir /persist/display 0770 system graphics
 
     #Create NETMGR daemon socket area
     mkdir /dev/socket/netmgr 0750 radio radio
@@ -129,11 +130,6 @@ on boot
     #For bridgemgr daemon to inform the USB driver of the correct transport
     chown radio radio /sys/class/android_usb/f_rmnet_smd_sdio/transport
 
-#   Assign TCP buffer thresholds to be ceiling value of technology maximums
-#   Increased technology maximums should be reflected here.
-    write /proc/sys/net/core/rmem_max  8388608
-    write /proc/sys/net/core/wmem_max  8388608
-
     # To prevent out of order acknowledgements from making
     # connection tracking to treat them as not belonging to
     # the connection they belong to.
@@ -149,16 +145,12 @@ on boot
     # Allow access for CCID command/response timeout configuration
     chown system system /sys/module/ccid_bridge/parameters/bulk_msg_timeout
 
-    chown root system /sys/devices/soc.0/78b9000.i2c/i2c-5/5-005d/keypad_enable
-    chmod 0660 /sys/devices/soc.0/78b9000.i2c/i2c-5/5-005d/keypad_enable
-
     start rmt_storage
-    start vfmService
 
     # Wifi firmware reload path
     chown wifi wifi /sys/module/wlan/parameters/fwpath
 
-# access permission for secure touch
+    # access permission for secure touch
     chmod 0660 /sys/devices/soc.0/78b9000.i2c/i2c-5/5-0020/secure_touch_enable
     chmod 0440 /sys/devices/soc.0/78b9000.i2c/i2c-5/5-0020/secure_touch
     chmod 0660 /sys/devices/soc.0/78b9000.i2c/i2c-5/5-0070/secure_touch_enable
@@ -168,16 +160,11 @@ on boot
     chown system drmrpc /sys/devices/soc.0/78b9000.i2c/i2c-5/5-0070/secure_touch_enable
     chown system drmrpc /sys/devices/soc.0/78b9000.i2c/i2c-5/5-0070/secure_touch
 
-#add by lixh10 for vibrator intensity control 2015-3-16 start
+    #add by lixh10 for vibrator intensity control 2015-3-16 start
     chown system system /sys/class/timed_output/vibrator/pwm_duty_ns
-#add by lixh10 for vibrator intensity control 2015-3-16 end
+    #add by lixh10 for vibrator intensity control 2015-3-16 end
 
-#begin lenovo add by wengjun1@lenovo.com
-    chown system system /sys/board_properties/tpd_suspend_status
-    chown system system /sys/board_properties/tpd_glove_status
-#end lenovo add by wengjun1@lenovo.com
-
-#begin lenovo add by houdz1@lenovo.com
+    #begin lenovo add by houdz1@lenovo.com
     chmod 0664 /sys/class/leds/button-backlight/brightness
     chown system system /sys/class/leds/button-backlight/brightness
     chmod 0664 /sys/class/leds/test-led/brightness
@@ -197,9 +184,9 @@ on boot
     restorecon /sys/class/leds/button-backlight/brightness
     restorecon /sys/class/leds/test-led/brightness
     restorecon /sys/class/leds/rgbled/brightness
-#end lenovo add by houdz1@lenovo.com
+    #end lenovo add by houdz1@lenovo.com
 
-#lenovo-sw caoyi1 add for sensor calibration 20151222 begin
+    #lenovo-sw caoyi1 add for sensor calibration 20151222 begin
     chmod 0664 /sys/devices/soc.0/78b6000.i2c/i2c-0/0-000e/fast_calibration_x
     chown system system /sys/devices/soc.0/78b6000.i2c/i2c-0/0-000e/fast_calibration_x
     chmod 0664 /sys/devices/soc.0/78b6000.i2c/i2c-0/0-000e/fast_calibration_y
@@ -230,45 +217,49 @@ on boot
     chown system system /persist/cali_param_2
     restorecon /persist/cali_param_1
     restorecon /persist/cali_param_2
-#lenovo-sw caoyi1 add for sensor calibration 20151222 end
+    #lenovo-sw caoyi1 add for sensor calibration 20151222 end
 
+    #lenovo-sw wengjun1 add 20160504 begin
+    chown system system /sys/class/power_supply/ext-charger/fast_charger_is_engineermode
+    chmod 0664 /sys/class/power_supply/ext-charger/fast_charger_is_engineermode
+    chown system system /sys/class/power_supply/ext-charger/otg_usb_short
+    chmod 0666 /sys/class/power_supply/ext-charger/otg_usb_short
+    chown system system /sys/class/power_supply/ext-charger/charge_enabled
+    chmod 0664  /sys/class/power_supply/ext-charger/charge_enabled
+    #lenovo-sw wengjun1 add 20160504 end
+
+    #lenovo-sw wengjun1 add 20160504 begin
+    chown system system /sys/board_properties/tpd_glove_status
+    chown system system /sys/board_properties/tpd_suspend_status
+    chown system system /dev/rmi0
+    chmod 0664 /sys/board_properties/tpd_suspend_status
+    chmod 0664 /sys/board_properties/tpd_glove_status
+    chmod 0660 /dev/rmi0
+    #lenovo-sw wengjun1 add 20160504 end
+
+    #lenovo-sw wengjun1 add 20160504 begin
     chmod 0755 /system/bin/vfmService
     chmod 0660 /dev/vfsspi
     chown system system /dev/vfsspi
-    mkdir /data/validity 0775 system system
     mkdir /dev/validity 0775 system system
+    chmod 0660 /sys/bus/platform/devices/soc:fingerprint@0/shutdown
+    chown system system /sys/bus/platform/devices/soc:fingerprint@0/shutdown
+    start vfmService
+    #lenovo-sw wengjun1 add 20160504 end
 
 on property:sys.listeners.registered=true
      start vfmService
 
-#lenovo-sw weiweij added for fast_charger_sw fast charger switch dameon
-service fast_charger_sw /system/bin/fast_charger_sw
-    class main
-    user root
-    seclabel u:r:fast_charger_sw:s0
-#lenovo-sw weiweij added for fast_charger_sw fast charger switch dameon end
-
-#lenovo-sw, chenzz3, added fingerprint daemon service, begin
-#synaptics fingerprint service
-service vfmService /system/bin/vfmService
-    user system
-    group system
-    class main
-    seclabel u:r:vfmService:s0
-
 on post-fs
-    chown system system /sys/class/power_supply/ext-charger/fast_charger_is_engineermode
-    chown system system /sys/class/power_supply/ext-charger/otg_usb_short
-    chmod 0664 /sys/class/power_supply/ext-charger/fast_charger_is_engineermode
-    chmod 0666 /sys/class/power_supply/ext-charger/otg_usb_short
-
     # default country code
     setprop ro.boot.wificountrycode 00
+
+    chmod 0755 /sys/kernel/debug/tracing
 
 # msm specific files that need to be created on /data
 on post-fs-data
     #Create directories for Fingerprint
-    mkdir /data/validity 0770 system system
+    mkdir /data/validity 0775 system system
 
     # Create directory for TZ Apps
     mkdir /data/misc/qsee 0770 system system
@@ -285,18 +276,13 @@ on post-fs-data
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/wifi/wpa_supplicant 0770 wifi wifi
     mkdir /data/misc/dhcp 0770 dhcp dhcp
-    chown dhcp dhcp /data/misc/dhcp
 
     # Create the directories used by CnE subsystem
     mkdir /data/connectivity 0771 system system
-    chown system system /data/connectivity
 
     # Create the directories used by DPM subsystem
     mkdir /data/dpm 0771 system system
-    chown system system /data/dpm
-
     mkdir /data/dpm/nsrm 0771 system system
-    chown system system /data/dpm/nsrm
 
     # Create directory used by audio subsystem
     mkdir /data/misc/audio 0770 audio audio
@@ -306,7 +292,6 @@ on post-fs-data
 
     # Create directory used by display clients
     mkdir /data/misc/display 0770 system graphics
-    mkdir /persist/display 0770 system graphics
 
     # Mounting of persist is moved to 'on emmc-fs' and 'on fs' sections
     # We chown/chmod /persist again so because mount is run as root + defaults
@@ -336,12 +321,10 @@ on post-fs-data
     mkdir /data/misc/location/gsiff 0770 gps gps
 
     #Create directory from IMS services
-    mkdir /data/shared 0755
-    chown system system /data/shared
+    mkdir /data/shared 0755 system system
 
     #Create directory for FOTA
-    mkdir /data/fota 0771
-    chown system system /data/fota
+    mkdir /data/fota 0771 system system
 
     # Create /data/time folder for time-services
     mkdir /data/time/ 0700 system system
@@ -353,18 +336,15 @@ on post-fs-data
     #Create a folder for SRS to be able to create a usercfg file
     mkdir /data/data/media 0770 media media
 
-    #Create folder for qlogd
-    mkdir /data/misc/qlogd 0664
-
     #Create folder for mm-qcamera-daemon
     mkdir /data/camera 0770 media camera
 
     #Create PERFD deamon related dirs
-    mkdir /data/misc/perfd 0755 root system
-    chmod 2755 /data/misc/perfd
-    mkdir /data/system/perfd 0770 root system
-    chmod 2770 /data/system/perfd
-    mkdir /persist/drm 0770 system system
+    mkdir /data/misc/perfd 2755 root system
+    rm /data/misc/perfd/default_values
+    mkdir /data/system/perfd 2770 root system
+    rm /data/system/perfd/default_values
+    start perfd
 
     # NFC local data and nfcee xml storage
     mkdir /data/nfc 0770 nfc nfc
@@ -375,7 +355,9 @@ on post-fs-data
 
     #Create FM dir for patchdownloader
     mkdir /data/misc/fm 0770 system system
-    chmod 0770 /data/misc/fm
+
+    #WAPI
+    mkdir /data/misc/wapi_certificate 0770 system wifi
 
     # RIDL data
     mkdir /data/misc/SelfHost/ 0710 system shell
@@ -399,7 +381,7 @@ on post-fs-data
     chmod 0660 /data/misc/radio/db_check_done
 
 on property:sys.boot_completed=1
-    write /dev/kmsg "Boot completed "
+    write /dev/kmsg "Boot completed"
 
 # corefile limit and ETB enabling
 on property:persist.debug.trace=1
@@ -423,7 +405,6 @@ on property:persist.debug.trace=1
     write /sys/module/coresight_event/parameters/event_abort_enable 1
 
 on property:bluetooth.isEnabled=true
-    start btwlancoex
     write /sys/class/bluetooth/hci0/idle_timeout 7000
 
 service qcom-c_main-sh /system/bin/sh /init.class_main.sh
@@ -434,6 +415,10 @@ service qcom-c_main-sh /system/bin/sh /init.class_main.sh
 on property:vold.decrypt=trigger_restart_framework
     start qcom-c_main-sh
     start wcnss-service
+    start config_bt_addr
+    start vfmService
+    stop camera-provider-2-4
+    start camera-provider-2-4
 
 on property:persist.env.fastdorm.enabled=true
     setprop persist.radio.data_no_toggle 1
@@ -504,7 +489,7 @@ service wcnss-service /system/bin/wcnss_service
 service per_mgr /system/bin/pm-service
     class core
     user system
-    group system
+    group system net_raw
 
 #start camera server as daemon
 service qcamerasvr /system/bin/mm-qcamera-daemon
@@ -516,42 +501,54 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
 service qmuxd /system/bin/qmuxd
     class main
     user root
-    group radio audio bluetooth gps nfc diag
+    group radio audio bluetooth gps nfc oem_2901
     disabled
 
 service netmgrd /system/bin/netmgrd
     class main
     user root
-    group root wifi wakelock radio inet
+    group root wifi wakelock radio inet oem_2901
     disabled
 
+# netmgr not supported on specific target
 on property:ro.use_data_netmgrd=false
-    # netmgr not supported on specific target
     stop netmgrd
 
+#  we will start as root and wpa_supplicant will switch to user wifi
 service wpa_supplicant /vendor/bin/hw/wpa_supplicant \
     -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
     -I/system/etc/wifi/p2p_supplicant_overlay.conf -N \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
-    -O/data/misc/wifi/sockets -puse_p2p_group_interface=1 -dd \
+    -O/data/misc/wifi/sockets -puse_p2p_group_interface=1 \
     -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
-#   we will start as root and wpa_supplicant will switch to user wifi
-#   after setting up the capabilities required for WEXT
-#   user wifi
-#   group wifi inet keystore
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
     disabled
     oneshot
 
-service loc_launcher /vendor/bin/loc_launcher
-    #loc_launcher will start as root and set its uid to gps
-    class late_start
-    group gps inet net_raw diag net_admin wifi
+#lenovo-sw weiweij added for fast_charger_sw fast charger switch dameon
+service fast_charger_sw /system/bin/fast_charger_sw
+    class main
+    user root
+    seclabel u:r:fast_charger_sw:s0
+#lenovo-sw weiweij added for fast_charger_sw fast charger switch dameon end
 
+#lenovo-sw, chenzz3, added fingerprint daemon service, begin
+service vfmService /system/bin/vfmService
+    user system
+    group system
+    class main
+    seclabel u:r:vfmService:s0
+#lenovo-sw, chenzz3, added fingerprint daemon service, end
+
+#loc_launcher will start as root and set its uid to gps
+service loc_launcher /vendor/bin/loc_launcher
+    class late_start
+    group gps inet net_raw oem_2901 net_admin wifi
+
+# Adjust socket buffer to enlarge TCP receive window for high bandwidth (e.g. DO-RevB)
 on property:ro.data.large_tcp_window_size=true
-    # Adjust socket buffer to enlarge TCP receive window for high bandwidth (e.g. DO-RevB)
     write /proc/sys/net/ipv4/tcp_adv_win_scale  2
 
 service ril-daemon2 /vendor/bin/hw/rild -c 2
@@ -562,7 +559,7 @@ service ril-daemon2 /vendor/bin/hw/rild -c 2
 
 service charger /charger
     class charger
-    group graphics
+    group system graphics
     seclabel u:r:charger:s0
 
 service msm_irqbalance /system/bin/msm_irqbalance -f /system/vendor/etc/msm_irqbalance.conf
@@ -573,5 +570,6 @@ service msm_irqbalance /system/bin/msm_irqbalance -f /system/vendor/etc/msm_irqb
 on charger
     wait /dev/block/bootdevice/by-name/system
     mount ext4 /dev/block/bootdevice/by-name/system /system ro barrier=1
-    start fast_charger_sw
     load_system_props
+    setprop sys.usb.configfs 0
+    start fast_charger_sw

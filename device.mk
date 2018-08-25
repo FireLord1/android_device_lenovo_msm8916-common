@@ -84,7 +84,7 @@ PRODUCT_PACKAGES += \
 
 # Camera
 PRODUCT_PACKAGES += \
-    Snap \
+    Camera2 \
     libc_util \
     camera.msm8916 \
     android.hardware.camera.provider@2.4-impl \

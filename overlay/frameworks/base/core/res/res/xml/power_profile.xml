@@ -20,21 +20,27 @@
 
     <array name="cpu.speeds">
         <value>200000</value>
+        <value>345600</value>
         <value>400000</value>
         <value>533333</value>
         <value>800000</value>
-        <value>998000</value>
-        <value>1094400</value>
-        <value>1190400</value>
+        <value>960000</value>
+        <value>1036800</value>
+        <value>1113600</value>
+        <value>1344000</value>
+        <value>1497600</value>
     </array>
     <array name="cpu.active">
-        <value>151</value>
-        <value>169</value>
-        <value>177</value>
-        <value>195</value>
-        <value>259</value>
-        <value>307</value>
-        <value>353</value>
+        <value>70</value>
+        <value>85</value>
+        <value>105</value>
+        <value>190</value>
+        <value>280</value>
+        <value>510</value>
+        <value>610</value>
+        <value>740</value>
+        <value>800</value>
+        <value>995</value>
     </array>
     <item name="cpu.idle">1.6</item>
     <item name="battery.capacity">4900</item>
